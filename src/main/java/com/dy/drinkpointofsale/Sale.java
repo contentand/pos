@@ -1,32 +1,56 @@
 package com.dy.drinkpointofsale;
 
-import com.dy.drinkpointofsale.product.Product;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 
 public class Sale {
-    
     private List<LineItem> lineItems;
-    private Map<Product, Integer> store;
-    
+
     public Sale() {
         this.lineItems = new ArrayList<>();
     }
-    
-    public void add(String productKey, int quantity) {
-        LineItem lineItem = new LineItem(productKey, quantity);
-        this.lineItems.add(lineItem);
+
+    public void add(String productName, int quantity) { // throws NSEE
+        LineItem lineItem = new LineItem(Product.getProduct(productName), quantity);
+        lineItems.add(lineItem);
     }
-    
-    public int getPrice() {
+
+    public int getTotalPrice() {
         return lineItems.stream()
-                .mapToInt(lineItem -> lineItem.getPrice())
-                .reduce(0, (v1, v2) -> v1 + v2);
+                .mapToInt(LineItem::getSubTotal)
+                .sum();
     }
-    
-    public boolean canDemandBeSatisfiedByStore() {
-        return true;
+
+    public Map<String, Integer> getPriceList() {
+        return Product.getPriceList();
     }
-    
+
+    public String getReceipt() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n--------------------------");
+        builder.append("\n--       RECEIPT        --");
+        builder.append("\n--------------------------");
+        Formatter f = new Formatter();
+        for (LineItem lineItem : lineItems) {
+            f.format("\n-- %-20s --",
+                    lineItem.getProductName());
+            f.format("\n-- %4d * %-4d = %6d --",
+                    lineItem.getQuantity(),
+                    lineItem.getUnitPrice(),
+                    lineItem.getSubTotal());
+        }
+        f.format("\n-- %20s --", " ");
+        f.format("\n-- Total = %12d --", getTotalPrice());
+        builder.append(f.toString());
+        f.close();
+        builder.append("\n--------------------------\n");
+        return builder.toString();
+    }
+
+    public void clear() {
+        lineItems.clear();
+    }
+
 }
