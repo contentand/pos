@@ -6,7 +6,7 @@ import static java.util.stream.Collectors.toMap;
 
 public enum Product {
 
-    TEA("Tea", 15), COFFEE("Coffee", 25), JUICE("Juice", 35);
+    TEA("Tea", 25), COFFEE("Coffee", 35), JUICE("Juice", 45);
     private static EnumSet<Product> set = EnumSet.allOf(Product.class);
 
     public static Product getProduct(String productName) {
