@@ -1,5 +1,10 @@
 package com.dy.drinkpointofsale;
 
+import com.dy.drinkpointofsale.exception.ChangeNotAvailableException;
+import com.dy.drinkpointofsale.exception.InsufficientFundsException;
+import com.dy.drinkpointofsale.exception.NoSuchProductException;
+import com.dy.drinkpointofsale.exception.UnsupportedCoinException;
+
 import java.util.*;
 
 public class Console {
@@ -47,20 +52,25 @@ public class Console {
     private class Commands {
         private void list() {
             out("Price list:");
-            pos.getPriceList().forEach((name, price) -> {
-                out("- " + name + " : " + price + " cents.");
-            });
+            pos.getPriceList().forEach((name, price) ->
+                    out("- " + name + " : " + price + " cents."));
         }
 
         private void insert() {
             List<Integer> supportedCoins = pos.getSupportedCoins();
             out("You can insert the following coins : " + supportedCoins);
-            int value;
-            if (scanner.hasNextInt() && supportedCoins.contains((value = scanner.nextInt()))) {
-                pos.putCoin(value);
-                out("Inserted " + value + " cents. Your current balance is : " + pos.getBalance() + " cents.");
+
+            if (scanner.hasNextInt()) {
+                try {
+                    int value = scanner.nextInt();
+                    pos.putCoin(value);
+                    out("Inserted " + value + " cents. Your current balance is : " + pos.getBalance() + " cents.");
+                } catch (UnsupportedCoinException e) {
+                    out("Coins with value " + e.getValue() + " are not supported!");
+                }
+
             } else {
-                out("Invalid input. You can insert the following coins : " + supportedCoins);
+                out("Please enter numeric values!");
             }
         }
 
@@ -73,8 +83,9 @@ public class Console {
                 try {
                     pos.add(productName, quantity);
                     out("Added to your bill.");
-                } catch (NoSuchElementException e) {
-                    out("Wrong product name. Enter 'list' command to see product list.");
+                } catch (NoSuchProductException e) {
+                    out("Wrong product name: " + e.getProductName() + ". " +
+                            "Enter 'list' command to see product list.");
                 }
             } else {
                 out("Invalid input. Quantity should be a positive non-zero number.");
@@ -82,13 +93,12 @@ public class Console {
         }
 
         private void getChange() {
-            if (pos.isChangeAvailable()) {
+            try {
                 out("The machine returned : " + pos.getChange());
-            } else {
+            } catch (ChangeNotAvailableException e) {
                 out("Sorry. We cannot give you change. Can you buy something else?");
-                out("You have " + pos.getBalance() + " cents left.");
+                out("You have " + e.getAmount() + " cents left.");
             }
-
         }
 
         private void quit() {
@@ -102,16 +112,14 @@ public class Console {
         }
 
         public void buy() {
-            if (pos.isSufficientFunds()) {
+            try {
                 String receipt = pos.buy();
                 out("Purchase successful!");
                 out(receipt);
-            } else {
+            } catch (InsufficientFundsException e) {
                 out("Insufficient funds!");
-                int deposit = pos.getBalance();
-                int bill = pos.getTotalPrice();
-                out("Your deposit: " + deposit + " cents. Your bill: " + bill + " cents.");
-                out("You need " + (bill - deposit) + " cents more.");
+                out("Your deposit: " + e.getDeposit() + " cents. Your bill: " + e.getBill() + " cents.");
+                out("You need " + (e.getBill() - e.getDeposit()) + " cents more.");
             }
         }
     }
