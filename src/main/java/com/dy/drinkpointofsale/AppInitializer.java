@@ -14,7 +14,7 @@ public class AppInitializer {
         coins.put(Coin.TWENTY_FIVE, 4);
         coins.put(Coin.FIFTY, 30);
         Cash cash = new Cash(coins);
-        Pos pos = new Pos(cash, sale);
+        Pos pos = new PosImpl(cash, sale);
         Console console = new Console(pos, new Scanner(System.in));
         return new App(console);
     }
