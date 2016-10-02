@@ -1,5 +1,7 @@
 package com.dy.drinkpointofsale;
 
+import com.dy.drinkpointofsale.exception.InsufficientFundsException;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +18,8 @@ public class PosImpl implements Pos {
         this.SUPPORTED_COINS = cash.getSupportedCoinValues();
     }
 
-    @Override
-    public String buy() { // throws ISE if funds are insufficient for purchase
+    @Override // throws InsufficientFundsException
+    public String buy() {
         int total = sale.getTotalPrice();
         if (isSufficientFunds()) {
             deposit -= total;
@@ -25,7 +27,7 @@ public class PosImpl implements Pos {
             sale.clear();
             return receipt;
         } else {
-            throw new IllegalStateException();
+            throw new InsufficientFundsException(deposit, total);
         }
     }
 
@@ -39,8 +41,8 @@ public class PosImpl implements Pos {
         sale.clear();
     }
 
-    @Override
-    public void putCoin(int value) { // throws NSEE if value does not match any coin
+    @Override // throws UnsupportedCoinException
+    public void putCoin(int value) {
         cash.add(value);
         deposit += value;
     }
@@ -50,16 +52,12 @@ public class PosImpl implements Pos {
         return deposit == 0 || cash.isAvailable(deposit);
     }
 
-    @Override
-    public List<Integer> getChange() { // throws ISE if there is not enough coins to give the change
+    @Override // throws ChangeNotAvailableException
+    public List<Integer> getChange() {
         if (deposit == 0) return Collections.emptyList();
-        try {
-            List<Integer> change = cash.remove(deposit);
-            deposit = 0;
-            return change;
-        } catch (IllegalArgumentException e) {
-            throw new IllegalStateException();
-        }
+        List<Integer> change = cash.remove(deposit);
+        deposit = 0;
+        return change;
     }
 
     @Override
@@ -72,8 +70,8 @@ public class PosImpl implements Pos {
         return sale.getPriceList();
     }
 
-    @Override
-    public void add(String productName, int quantity) { // throws NSEE if product name does not match any product
+    @Override // throws NoSuchProductException
+    public void add(String productName, int quantity) {
         sale.add(productName, quantity);
     }
 

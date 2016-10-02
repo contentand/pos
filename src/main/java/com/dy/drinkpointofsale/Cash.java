@@ -1,5 +1,8 @@
 package com.dy.drinkpointofsale;
 
+import com.dy.drinkpointofsale.exception.ChangeNotAvailableException;
+import com.dy.drinkpointofsale.exception.UnsupportedCoinException;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,8 +20,12 @@ public class Cash {
     }
 
     public void add(int value) {
-        Coin coin = Coin.getCoin(value);
-        coins.merge(coin, 1, (previousCount, one) -> previousCount + one);
+        try {
+            Coin coin = Coin.getCoin(value);
+            coins.merge(coin, 1, (previousCount, one) -> previousCount + one);
+        } catch (NoSuchElementException e) {
+            throw new UnsupportedCoinException(value);
+        }
     }
 
     public List<Integer> getSupportedCoinValues() {
@@ -39,7 +46,7 @@ public class Cash {
             }
             return valuesToReturn;
         } else {
-            throw new IllegalArgumentException();
+            throw new ChangeNotAvailableException(amount);
         }
     }
 

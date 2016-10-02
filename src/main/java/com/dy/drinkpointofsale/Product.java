@@ -1,7 +1,11 @@
 package com.dy.drinkpointofsale;
 
+import com.dy.drinkpointofsale.exception.NoSuchProductException;
+
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
+
 import static java.util.stream.Collectors.toMap;
 
 public enum Product {
@@ -10,10 +14,14 @@ public enum Product {
     private static EnumSet<Product> set = EnumSet.allOf(Product.class);
 
     public static Product getProduct(String productName) {
-        return set.stream()
-                .filter(product -> product.getName().equals(productName))
-                .findFirst()
-                .get();
+        try {
+            return set.stream()
+                    .filter(product -> product.getName().equals(productName))
+                    .findFirst()
+                    .get();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchProductException(productName);
+        }
     }
 
     public static Map<String, Integer> getPriceList() {
