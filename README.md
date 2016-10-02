@@ -12,4 +12,4 @@ Task
 Непотрібно робити Persistence
 Обов'язково додати UML діаграму класів
 
-Uml : https://github.com/contentand/pos/blob/master/diagram.jpg
+Uml : ![](https://github.com/contentand/pos/blob/master/diagram.jpg)
