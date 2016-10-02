@@ -21,6 +21,10 @@ public class Cash {
         coins.merge(coin, 1, (previousCount, one) -> previousCount + one);
     }
 
+    public List<Integer> getSupportedCoinValues() {
+        return Coin.getSupportedCoinValues();
+    }
+
     public List<Integer> remove(int amount) {
         List<Integer> valuesToReturn = new ArrayList<>();
         if (isAvailable(amount)) {

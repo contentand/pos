@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 
 public class Pos {
 
-    private final static int[] SUPPORTED_COINS = {1, 5, 10, 20, 25, 50};
+    private final List<Integer> SUPPORTED_COINS;
     private final Cash cash;
     private final Sale sale;
     private int deposit;
@@ -16,6 +16,7 @@ public class Pos {
     public Pos(Cash cash, Sale sale) {
         this.cash = cash;
         this.sale = sale;
+        this.SUPPORTED_COINS = cash.getSupportedCoinValues();
     }
 
     public String buy() { // throws ISE if funds are insufficient for purchase
@@ -60,7 +61,7 @@ public class Pos {
     }
 
     public List<Integer> getSupportedCoins() {
-        return IntStream.of(SUPPORTED_COINS).boxed().collect(Collectors.toList());
+        return SUPPORTED_COINS;
     }
 
     public Map<String, Integer> getPriceList() {
